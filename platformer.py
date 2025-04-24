@@ -1,5 +1,6 @@
 import pygame
 import time
+import os
 from sys import exit
 
 pygame.init()
@@ -21,20 +22,31 @@ ground_rect = ground_surf.get_rect()
 ground_rect = pygame.Rect(0, 700, SCREEN_WIDTH, 200)
 
 # Object Rects
-player_rect = pygame.Rect(200, 600, 25, 60)
-platform1_rect = pygame.Rect(750, 680, 100, 20)
+player_rect = pygame.Rect(200, 600, 50, 60)
+platform1_rect = pygame.Rect(750, 500, 100, 20)
 platform2_rect = pygame.Rect(1200, 600, 100, 20)
 platform3_rect = pygame.Rect(1500, 400, 100, 20)
+
+
+player_sprite = [pygame.image.load('Sprites/player/sprite_1.png').convert_alpha(),
+                                   pygame.image.load('Sprites/player/sprite_2.png').convert_alpha()]
+
+
+frame_index = 0
+frame_timer = 0
+animation_speed = 30
+
 
 player_vel = 0
 bg_scroll = 0
 scroll_speed = 5
-collision = False
+collision = False 
 
 platforms = [ground_rect, platform1_rect, platform2_rect, platform3_rect]
 platforms_draw = [platform1_rect, platform2_rect, platform3_rect]
 
 landed = 0
+
 
 
 while True:
@@ -58,7 +70,7 @@ while True:
 
     keys = pygame.key.get_pressed()
 
-    # Handle horizontal movement only if not colliding with platforms' sides
+    # Handle horizontal movement
     if keys[pygame.K_a] and not collision:
         bg_scroll += scroll_speed
         for platform in platforms:
@@ -71,8 +83,18 @@ while True:
     # Move ground to prevent falling off
     ground_rect.x = player_rect.x
 
+    if frame_timer >= animation_speed:
+        frame_index = (frame_index + 1) % len(player_sprite)
+        frame_timer = 0
+
     if keys[pygame.K_SPACE] and landed == 1:
         player_vel -= 20
+    
+    current_image = player_sprite[frame_index]
+    if keys[pygame.K_d]:
+        screen.blit(current_image,(190,630))
+    else:
+        screen.blit(player_sprite[0],(190,630))
 
     # Save previous values before moving
     prev_bottom = player_rect.bottom
@@ -118,6 +140,9 @@ while True:
         if player_vel < 15:
             player_vel += 0.75
         landed = 0
+
+    frame_timer += 1
+
 
     pygame.display.update()
     clock.tick(60)
