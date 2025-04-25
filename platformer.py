@@ -52,8 +52,6 @@ death_jump = False
 platforms = [ground_rect, platform1_rect, platform2_rect, platform3_rect]
 platforms_draw = [platform1_rect, platform2_rect, platform3_rect]
 
-
-
 while True:
     
     screen.fill((0, 0, 0))
