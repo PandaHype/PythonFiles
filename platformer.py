@@ -9,6 +9,7 @@ SCREEN_HEIGHT = 900
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# Setup Clock for FPS management
 clock = pygame.time.Clock()
 
 # Setting up Background
@@ -25,16 +26,22 @@ platform1_rect = pygame.Rect(750, 680, 100, 20)
 platform2_rect = pygame.Rect(1200, 600, 100, 20)
 platform3_rect = pygame.Rect(1500, 400, 100, 20)
 
+# List player sprites to animate
+player_sprite_right = [pygame.image.load('Sprites/player/sprite_1right.png').convert_alpha(),
+                                    pygame.image.load('Sprites/player/sprite_2right.png').convert_alpha()]
+player_sprite_left = [pygame.image.load('Sprites/player/sprite_1left.png').convert_alpha(),
+                                    pygame.image.load('Sprites/player/sprite_2left.png').convert_alpha()]
 
-player_sprite = [pygame.image.load('Sprites/player/sprite_1.png').convert_alpha(),
-                                   pygame.image.load('Sprites/player/sprite_2.png').convert_alpha()]
+# DEBUG MODE TOGGLE
+DEBUG = True
 
-
+# Player variables
 frame_index = 0
 frame_timer = 0
 animation_speed = 20
 
-
+# General variables
+prev_x = None
 player_vel = 0
 bg_scroll = 0
 scroll_speed = 5
@@ -64,7 +71,8 @@ while True:
     for platform in platforms_draw:
         pygame.draw.rect(screen, (255, 255, 255), platform)
 
-    pygame.draw.rect(screen, (0, 255, 0), player_rect)
+    if DEBUG:
+        pygame.draw.rect(screen, (0, 255, 0), player_rect)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -84,35 +92,28 @@ while True:
             platform.x -= scroll_speed
 
     # Move ground to prevent falling off, [DEBUG] DISABLE FOR ACTUAL GAME!
-    # ground_rect.x = player_rect.x
+    if DEBUG:
+        ground_rect.x = player_rect.x
 
     if frame_timer >= animation_speed:
-        frame_index = (frame_index + 1) % len(player_sprite)
+        frame_index = (frame_index + 1) % len(player_sprite_right)
         frame_timer = 0
 
     if keys[pygame.K_SPACE] and landed == 1:
         player_vel -= 20
     
-    current_image = player_sprite[frame_index]
+    current_image_right = player_sprite_right[frame_index]
+    current_image_left = player_sprite_left[frame_index]
     if keys[pygame.K_d]:
-        screen.blit(current_image,player_rect.topleft)
-        prev_direction = 0
-    elif keys[pygame.K_d]:
-        screen.blit(current_image,player_rect.topleft)
+        screen.blit(current_image_right,player_rect.topleft)
         prev_direction = 0
     if keys[pygame.K_a]:
-        current_image = pygame.transform.flip(current_image,flip_x=True,flip_y=False)
-        screen.blit(current_image,player_rect.topleft)
-        prev_direction = 1
-    elif keys[pygame.K_a]:
-        current_image = pygame.transform.flip(current_image,flip_x=True,flip_y=False)
-        screen.blit(current_image,player_rect.topleft)
+        screen.blit(current_image_left,player_rect.topleft)
         prev_direction = 1
     if prev_direction == 0 and not keys[pygame.K_d]:
-        screen.blit(player_sprite[0],player_rect.topleft)
+        screen.blit(player_sprite_right[0],player_rect.topleft)
     elif prev_direction == 1 and not keys[pygame.K_a]:
-        current_image = pygame.transform.flip(player_sprite[0],flip_x=True,flip_y=False)
-        screen.blit(current_image,player_rect.topleft)
+        screen.blit(player_sprite_left[0],player_rect.topleft)
 
     # Save previous values before moving
     prev_bottom = player_rect.bottom
@@ -133,7 +134,7 @@ while True:
                 player_rect.bottom = platform.top
                 player_vel = 0
                 is_on_platform = True
-            elif player_vel < 0 and prev_top >= platform.bottom:
+            elif player_vel <= 0 and prev_top >= platform.bottom:
                 # Hit from below
                 player_rect.top = platform.bottom
                 player_vel = 0
