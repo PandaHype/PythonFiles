@@ -148,16 +148,18 @@ def animations():
         frame_index = (frame_index + 1) % len(player_sprite_right)
         frame_timer = 0
 
-    if keys[pygame.K_d]:
+    if keys[pygame.K_d] and not keys[pygame.K_a]:
         screen.blit(current_image_right,player_rect.topleft)
         prev_direction = 0
-    if keys[pygame.K_a]:
+    if keys[pygame.K_a] and not keys[pygame.K_d]:
         screen.blit(current_image_left,player_rect.topleft)
         prev_direction = 1
     if prev_direction == 0 and not keys[pygame.K_d]:
         screen.blit(player_sprite_right[0],player_rect.topleft)
     elif prev_direction == 1 and not keys[pygame.K_a]:
         screen.blit(player_sprite_left[0],player_rect.topleft)
+    elif prev_direction == 0 and keys[pygame.K_a] and keys[pygame.K_d]:
+        screen.blit(player_sprite_right[0],player_rect.topleft)
 
 
 while True:
