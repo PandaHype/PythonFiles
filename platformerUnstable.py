@@ -41,7 +41,6 @@ frame_timer = 0
 animation_speed = 20
 
 # General variables
-prev_x = None
 player_vel = 0
 bg_scroll = 0
 scroll_speed = 5
@@ -183,7 +182,6 @@ while True:
     # Move ground to prevent falling off, [DEBUG] DISABLE FOR ACTUAL GAME!
     if DEBUG:
         ground_rect.x = player_rect.x
-
 
     # Save previous values before moving
     prev_bottom = player_rect.bottom
