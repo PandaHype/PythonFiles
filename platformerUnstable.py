@@ -33,7 +33,7 @@ player_sprite_left = [pygame.image.load('Sprites/player/sprite_1left.png').conve
                                     pygame.image.load('Sprites/player/sprite_2left.png').convert_alpha()]
 
 # DEBUG MODE TOGGLE
-DEBUG = True
+DEBUG = False
 
 # Player variables
 frame_index = 0
@@ -44,6 +44,7 @@ animation_speed = 20
 player_vel = 0
 bg_scroll = 0
 scroll_speed = 5
+landed = 0
 left_collision = False
 right_collision = False
 dead = False
@@ -55,8 +56,6 @@ prev_direction = 0
 
 platforms = [ground_rect, platform1_rect, platform2_rect, platform3_rect]
 platforms_draw = [platform1_rect, platform2_rect, platform3_rect]
-
-landed = 0
 
 
 def handle_collision():
@@ -147,6 +146,7 @@ def animations():
         frame_index = (frame_index + 1) % len(player_sprite_right)
         frame_timer = 0
 
+    # Check what key is pressed and draw corrosponding sprite
     if keys[pygame.K_d] and not keys[pygame.K_a]:
         screen.blit(current_image_right,player_rect.topleft)
         prev_direction = 0
