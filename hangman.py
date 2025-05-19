@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import random
+import string
 
 words = {
     0: "APPLE", 1: "BANANA", 2: "GRAPES", 3: "ORANGE", 4: "PEACH",
@@ -24,34 +25,124 @@ words = {
     95: "NINJA", 96: "VIKING", 97: "DETECTIVE", 98: "SPY", 99: "MONSTER"
 }
 
-# word = random.choice(list(words.values()))
-word = words[0]
-length = len(word)
-pos = 1
-
-def letter_guess(letter,button):
-    global word, word_box
-    for x in word:
-        if letter == x:
-            print(f"Word contained: {letter}")
-            button.configure(state="disabled", fg_color="light green")
-            
-
-    if letter not in word:
-        button.configure(state="disabled", fg_color="red")
-
-
 root = ctk.CTk()
-root.title("My Test Enviorment")
-root.geometry("500x400")
+root.geometry("1600x1000")
+root.title("Hangman")
+import tkinter as tk
 
-word_box = ctk.CTkLabel(root, text="_ " * length)
-word_box.pack()
+class HangmanCanvas:
+    def __init__(self, master):
+        self.canvas = tk.Canvas(master, width=200, height=250, bg="dark gray")
+        self.canvas.pack(pady=50)
+        self.steps = [
+            self.draw_base,
+            self.draw_post,
+            self.draw_beam,
+            self.draw_rope,
+            self.draw_head,
+            self.draw_body,
+            self.draw_left_arm,
+            self.draw_right_arm,
+            self.draw_left_leg,
+            self.draw_right_leg,
+        ]
+        self.stage = 0
 
-a_button = ctk.CTkButton(root, text="A", width=30, fg_color="blue")
-a_button.configure(command=lambda: letter_guess("A", a_button))
-a_button.pack()
+    def draw_next(self):
+        if self.stage < len(self.steps):
+            self.steps[self.stage]()
+            self.stage += 1
+
+    def reset(self):
+        self.canvas.delete("all")
+        self.stage = 0
+
+    def draw_base(self):
+        self.canvas.create_line(20, 230, 180, 230, width=5)
+
+    def draw_post(self):
+        self.canvas.create_line(50, 230, 50, 20, width=4)
+
+    def draw_beam(self):
+        self.canvas.create_line(50, 20, 130, 20, width=4)
+
+    def draw_rope(self):
+        self.canvas.create_line(130, 20, 130, 50, width=3)
+
+    def draw_head(self):
+        self.canvas.create_oval(110, 50, 150, 90, width=4)
+
+    def draw_body(self):
+        self.canvas.create_line(130, 90, 130, 150, width=4)
+
+    def draw_left_arm(self):
+        self.canvas.create_line(130, 100, 100, 120, width=4)
+
+    def draw_right_arm(self):
+        self.canvas.create_line(130, 100, 160, 120, width=4)
+
+    def draw_left_leg(self):
+        self.canvas.create_line(130, 150, 110, 190, width=4)
+
+    def draw_right_leg(self):
+        self.canvas.create_line(130, 150, 150, 190, width=4)
+
+
+class letterbuttons:
+    def __init__(self, master, command):
+        self.buttons = {}
+        self.frame = ctk.CTkFrame(master)
+        self.frame.pack()
+    
+        for i, letter in enumerate(string.ascii_uppercase):
+            button = ctk.CTkButton(
+                self.frame,
+                text=letter,
+                width=70,
+                height=70,
+                command=lambda l=letter: command(l, self.buttons[l])
+            )
+            button.grid(row=i // 9, column=i % 9, padx=2, pady=2)
+            self.buttons[letter] = button
+
+def guess_letter(letter, button):
+    global word, hanged, lives, won
+    match_found = False
+    
+    guessed_letters.add(letter)
+    if not hanged and not won:
+        for x in word:
+            if x == letter:
+                match_found = True
+                button.configure(state="disabled",fg_color="light green")
+                display_var.set(' '.join([l if l in guessed_letters else "_" for l in word]))
+        if match_found == False:
+            button.configure(state="disabled",fg_color="dark red")
+            hangman.draw_next()
+            lives -= 1
+            if lives < 1 and not hanged:
+                hanged = True
+    if set(word) <= guessed_letters:
+        won = True
+                
+    match_found = False
+
+hangman = HangmanCanvas(root)
+
+word = random.choice(list(words.values()))
+lives = 10
+won = False
+hanged = False
+
+guessed_letters = set()
+length = len(word)
+
+display_var = ctk.StringVar(root, value="_ " * length)
+
+word_box = ctk.CTkLabel(root, textvariable=display_var, font=("Arial", 48))
+word_box.pack(pady=50)
+
+letters = letterbuttons(root, guess_letter)
 
 
 root.mainloop()
-

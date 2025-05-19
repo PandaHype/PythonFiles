@@ -27,10 +27,10 @@ platform2_rect = pygame.Rect(1200, 600, 100, 20)
 platform3_rect = pygame.Rect(1500, 400, 100, 20)
 
 # List player sprites to animate
-player_sprite_right = [pygame.image.load('Sprites/player/sprite_1right.png').convert_alpha(),
-                                    pygame.image.load('Sprites/player/sprite_2right.png').convert_alpha()]
-player_sprite_left = [pygame.image.load('Sprites/player/sprite_1left.png').convert_alpha(),
-                                    pygame.image.load('Sprites/player/sprite_2left.png').convert_alpha()]
+player_sprite_right = [pygame.image.load('Game Developing/Sprites/player/sprite_1right.png').convert_alpha(),
+                                    pygame.image.load('Game Developing/Sprites/player/sprite_2right.png').convert_alpha()]
+player_sprite_left = [pygame.image.load('Game Developing/Sprites/player/sprite_1left.png').convert_alpha(),
+                                    pygame.image.load('Game Developing/Sprites/player/sprite_2left.png').convert_alpha()]
 
 # DEBUG MODE TOGGLE
 DEBUG = True
