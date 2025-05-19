@@ -179,9 +179,6 @@ while True:
             pygame.quit()
             exit()
 
-    # Move ground to prevent falling off, [DEBUG] DISABLE FOR ACTUAL GAME!
-    if DEBUG:
-        ground_rect.x = player_rect.x
 
     # Save previous values before moving
     prev_bottom = player_rect.bottom

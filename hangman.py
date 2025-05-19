@@ -28,11 +28,11 @@ words = {
 root = ctk.CTk()
 root.geometry("1600x1000")
 root.title("Hangman")
-import tkinter as tk
+root.configure(fg_color='#242424')
 
 class HangmanCanvas:
     def __init__(self, master):
-        self.canvas = tk.Canvas(master, width=200, height=250, bg="dark gray")
+        self.canvas = ctk.CTkCanvas(master, width=200, height=250, bg="dark gray")
         self.canvas.pack(pady=50)
         self.steps = [
             self.draw_base,
@@ -47,7 +47,6 @@ class HangmanCanvas:
             self.draw_right_leg,
         ]
         self.stage = 0
-
     def draw_next(self):
         if self.stage < len(self.steps):
             self.steps[self.stage]()
@@ -87,11 +86,20 @@ class HangmanCanvas:
     def draw_right_leg(self):
         self.canvas.create_line(130, 150, 150, 190, width=4)
 
+    def draw_happy_smile(self):
+        self.canvas.create_line(120,75, 130,85, 140,75, width=4, smooth=1)
+        self.canvas.create_oval(121,60, 126,65, width=3)
+        self.canvas.create_oval(134,60, 139,65, width=3)
+    def draw_sad_smile(self):
+        self.canvas.create_line(120,80, 130,75, 140,80, width=4, smooth=1)
+        self.canvas.create_oval(121,60, 126,65, width=3)
+        self.canvas.create_oval(134,60, 139,65, width=3) 
+
 
 class letterbuttons:
     def __init__(self, master, command):
         self.buttons = {}
-        self.frame = ctk.CTkFrame(master)
+        self.frame = ctk.CTkFrame(master, fg_color='#242424')
         self.frame.pack()
     
         for i, letter in enumerate(string.ascii_uppercase):
@@ -114,18 +122,40 @@ def guess_letter(letter, button):
         for x in word:
             if x == letter:
                 match_found = True
-                button.configure(state="disabled",fg_color="light green")
+                button.configure(state="disabled",fg_color="#07BD1C")
                 display_var.set(' '.join([l if l in guessed_letters else "_" for l in word]))
         if match_found == False:
-            button.configure(state="disabled",fg_color="dark red")
+            button.configure(state="disabled",fg_color="#CE0F0F")
             hangman.draw_next()
             lives -= 1
             if lives < 1 and not hanged:
                 hanged = True
     if set(word) <= guessed_letters:
         won = True
-                
+    if hanged or won:
+        if won:
+            display_result(won,)
+        if hanged:
+            display_result(hanged)
+               
     match_found = False
+
+def display_result(result):
+    if result == won:
+        for x in range(10): 
+            hangman.draw_next()
+        hangman.draw_happy_smile()
+        
+        result_label = ctk.CTkLabel(root,height=30,text="YOU WIN", font=("Arial", 128), text_color="white")
+        result_label.place(relx=0.5, rely=0.4, anchor="center")
+
+    if result == hanged:
+        for x in range(10): 
+            hangman.draw_next()
+        hangman.draw_sad_smile()
+
+        result_label = ctk.CTkLabel(root,height=30,text="YOU LOST", font=("Arial", 128), text_color="white")
+        result_label.place(relx=0.5, rely=0.4, anchor="center")
 
 hangman = HangmanCanvas(root)
 
@@ -139,10 +169,9 @@ length = len(word)
 
 display_var = ctk.StringVar(root, value="_ " * length)
 
-word_box = ctk.CTkLabel(root, textvariable=display_var, font=("Arial", 48))
+word_box = ctk.CTkLabel(root, textvariable=display_var, font=("Arial", 48), text_color="white")
 word_box.pack(pady=50)
 
 letters = letterbuttons(root, guess_letter)
-
 
 root.mainloop()
