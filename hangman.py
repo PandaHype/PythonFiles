@@ -87,9 +87,17 @@ class HangmanCanvas:
         self.canvas.create_line(130, 150, 150, 190, width=4)
 
     def draw_happy_smile(self):
-        self.canvas.create_line(120,75, 130,85, 140,75, width=4, smooth=1)
-        self.canvas.create_oval(121,60, 126,65, width=3)
-        self.canvas.create_oval(134,60, 139,65, width=3)
+        hangman.reset()
+        hangman.draw_next()
+        self.canvas.create_oval(80, 60, 120, 100, width=4)
+        self.canvas.create_line(100, 100, 100, 160, width=4)
+        self.canvas.create_line(100, 110, 70, 130, width=4)
+        self.canvas.create_line(100, 110, 130, 130, width=4)
+        self.canvas.create_line(100, 160, 80, 200, width=4)
+        self.canvas.create_line(100, 160, 120, 200, width=4)
+        self.canvas.create_line(90,85, 100,95, 110,85, width=4, smooth=1)
+        self.canvas.create_oval(91,70, 96,75, width=3)
+        self.canvas.create_oval(104,70, 109,75, width=3)
     def draw_sad_smile(self):
         self.canvas.create_line(120,80, 130,75, 140,80, width=4, smooth=1)
         self.canvas.create_oval(121,60, 126,65, width=3)
@@ -146,16 +154,17 @@ def display_result(result):
             hangman.draw_next()
         hangman.draw_happy_smile()
         
-        result_label = ctk.CTkLabel(root,height=30,text="YOU WIN", font=("Arial", 128), text_color="white")
-        result_label.place(relx=0.5, rely=0.4, anchor="center")
+        result_label = ctk.CTkLabel(root,height=30,text="YOU WIN", font=("Arial", 100), text_color="white")
+        result_label.place(relx=0.22, rely=0.15, anchor="center")
 
     if result == hanged:
         for x in range(10): 
             hangman.draw_next()
         hangman.draw_sad_smile()
 
-        result_label = ctk.CTkLabel(root,height=30,text="YOU LOST", font=("Arial", 128), text_color="white")
-        result_label.place(relx=0.5, rely=0.4, anchor="center")
+        result_label = ctk.CTkLabel(root,height=30,text="YOU LOST", font=("Arial", 100), text_color="white")
+        result_label.place(relx=0.22, rely=0.15, anchor="center")
+
 
 hangman = HangmanCanvas(root)
 

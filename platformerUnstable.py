@@ -1,11 +1,32 @@
 import pygame
+import json
 from sys import exit
 
 pygame.init()
 
+class Block(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h, block_id=0, color=(0, 255 ,0)):
+        super().__init__()
+        self.block_id = block_id  # store block type id
+        self.image = pygame.Surface((w, h))
+        self.image.fill(color)
+        self.rect = self.image.get_rect(topleft=(x, y))
+
+BLOCK_TYPES = {
+    0: (0, 255, 0),     # Green block (Grass block)
+    1: (255, 0, 0),     # Red block (Damage block)
+    2: (0, 0, 255),     # Blue block (Water block)
+    3: (0, 0, 0),       # Black block (Void block)
+    4: (255, 255, 0),
+    5: (255, 128, 0),
+    6: (128, 0, 255),
+    7: (0, 255, 255),
+}
+
+
 info = pygame.display.Info()
-SCREEN_WIDTH = 1500
-SCREEN_HEIGHT = 900
+SCREEN_WIDTH = 1600
+SCREEN_HEIGHT = 800
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -14,16 +35,14 @@ clock = pygame.time.Clock()
 
 # Setting up Background
 sky_surf = pygame.image.load('Sprites/sky.png').convert()
-sky_surf = pygame.transform.scale(sky_surf, (SCREEN_WIDTH, 700))
-ground_surf = pygame.image.load('Sprites/ground.png').convert()
-ground_surf = pygame.transform.scale(ground_surf, (SCREEN_WIDTH, 200))
-ground_rect = ground_surf.get_rect()
-ground_rect = pygame.Rect(0, 700, SCREEN_WIDTH, 200)
+sky_surf = pygame.transform.scale(sky_surf, (SCREEN_WIDTH, 600))
+
+ground_rect = pygame.Rect(0, 600, SCREEN_WIDTH, 200)
 
 # Object Rects
 player_rect = pygame.Rect(200, 600, 55, 64)
-platform1_rect = pygame.Rect(750, 680, 100, 20)
-platform2_rect = pygame.Rect(1200, 600, 100, 20)
+platform1_rect = pygame.Rect(750, 400, 100, 20)
+platform2_rect = pygame.Rect(1200, 500, 100, 20)
 platform3_rect = pygame.Rect(1500, 400, 100, 20)
 
 # List player sprites to animate
@@ -31,6 +50,7 @@ player_sprite_right = [pygame.image.load('Sprites/player/sprite_1right.png').con
                                     pygame.image.load('Sprites/player/sprite_2right.png').convert_alpha()]
 player_sprite_left = [pygame.image.load('Sprites/player/sprite_1left.png').convert_alpha(),
                                     pygame.image.load('Sprites/player/sprite_2left.png').convert_alpha()]
+
 
 # DEBUG MODE TOGGLE
 DEBUG = False
@@ -49,7 +69,12 @@ left_collision = False
 right_collision = False
 dead = False
 death_jump = False
+GRID_SIZE = 20
 
+prev_bottom = 0
+prev_top = 0
+prev_left = 0
+prev_right = 0
 
 # Store player facing directon [1 = Left, 0 = Right]
 prev_direction = 0
@@ -93,8 +118,7 @@ def draw_objects():
     screen.blit(sky_surf, (bg_scroll % SCREEN_WIDTH - SCREEN_WIDTH, 0))
     screen.blit(sky_surf, (bg_scroll % SCREEN_WIDTH, 0))
 
-    screen.blit(ground_surf, (bg_scroll % SCREEN_WIDTH - SCREEN_WIDTH, 700))
-    screen.blit(ground_surf, (bg_scroll % SCREEN_WIDTH, 700))
+
 
     for platform in platforms_draw:
         pygame.draw.rect(screen, (255, 255, 255), platform)
@@ -160,11 +184,32 @@ def animations():
     elif prev_direction == 0 and keys[pygame.K_a] and keys[pygame.K_d]:
         screen.blit(player_sprite_right[0],player_rect.topleft)
 
+def load_and_draw_map(filename, surface, block_group, block_width, block_height):
+    try:
+        with open(filename, 'r') as f:
+            data = json.load(f)
+
+        for item in data:
+            block_id = item['block_id']
+            x = item['x']
+            y = item['y']
+            color = BLOCK_TYPES.get(block_id, (100, 100, 100))
+            block = Block(x, y, block_width, block_height, block_id, color)
+            block_group.add(block)
+
+        # Draw blocks to the surface
+        block_group.draw(surface)
+        print(f"Loaded and drew map from {filename}")
+    except Exception as e:
+        print(f"Failed to load or draw map: {e}")
+
 
 while True:
-
     # Draw all objects
     draw_objects()
+    # Draw map
+    loaded_blocks = pygame.sprite.Group()
+    load_and_draw_map("my_level.json", screen, loaded_blocks, GRID_SIZE, GRID_SIZE)
     # Handle movement
     movement()
     # Handle collisions
