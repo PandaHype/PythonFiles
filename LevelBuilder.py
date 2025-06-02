@@ -1,6 +1,5 @@
 import pygame
 import json
-from sys import exit
 
 # SETTINGS #
 GRID_SIZE = 20
