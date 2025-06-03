@@ -29,9 +29,13 @@ clock = pygame.time.Clock()
 sky_surf = pygame.image.load('Sprites/sky.png').convert()
 sky_surf = pygame.transform.scale(sky_surf, (SCREEN_WIDTH, 600))
 
+# Setting up Hearts
+heart_image = pygame.image.load('Sprites/heart.png').convert_alpha()
+heart_image = pygame.transform.scale(heart_image, (40, 40))  # Resize if needed
+
 # Object Rects
 player_rect = pygame.Rect(200, 600, 55, 64)
-
+ 
 # List player sprites to animate
 player_sprite_right = [pygame.image.load('Sprites/player/sprite_1right.png').convert_alpha(),
                                     pygame.image.load('Sprites/player/sprite_2right.png').convert_alpha()]
@@ -46,7 +50,14 @@ DEBUG = False
 frame_index = 0
 frame_timer = 0
 animation_speed = 20
-health = 3
+
+player_health = 3
+max_health = 3
+
+invincible = False
+iframe_timer = 0
+IFRAME_DURATION = 500  # milliseconds (1 second of invincibility)
+
 
 # General variables
 player_vel = 0
@@ -76,7 +87,7 @@ platforms = [
 ]
 
 def handle_collision():
-    global player_vel, left_collision, right_collision, landed
+    global player_vel, left_collision, right_collision, landed, player_health, iframe_timer, invincible, current_time
     # Check for collisions after vertical movement
     for rect, block_id in platforms:
         if player_rect.colliderect(rect):
@@ -85,10 +96,24 @@ def handle_collision():
                 player_rect.bottom = rect.top
                 player_vel = 0
                 landed = True
+                current_time = pygame.time.get_ticks()
+                if block_id == 1:
+                    if not invincible:
+                        if player_health > 0:
+                            player_health -= 1
+                            invincible = True
+                            iframe_timer = current_time
             elif player_vel <= 0 and prev_top >= rect.bottom:
                 # Hit from below
                 player_rect.top = rect.bottom
                 player_vel = 0
+                current_time = pygame.time.get_ticks()
+                if block_id == 1:
+                    if not invincible:
+                        if player_health > 0:
+                            player_health -= 1
+                            invincible = True
+                            iframe_timer = current_time
 
     # Check for side collisions (left and right) to prevent scrolling
     left_collision = False
@@ -98,10 +123,24 @@ def handle_collision():
             if prev_right > rect.left and prev_left < rect.left:
                 # Collided from the left
                 left_collision = True
+                current_time = pygame.time.get_ticks()
+                if block_id == 1:
+                    if not invincible:
+                        if player_health > 0:
+                            player_health -= 1
+                            invincible = True
+                            iframe_timer = current_time
                 break
             if prev_left < rect.right and prev_right > rect.right:
                 # Collided from the right
                 right_collision = True
+                current_time = pygame.time.get_ticks()
+                if block_id == 1:
+                    if not invincible:
+                        if player_health > 0:
+                            player_health -= 1
+                            invincible = True
+                            iframe_timer = current_time
                 break
 
 def draw_objects():
@@ -116,6 +155,13 @@ def draw_objects():
 
     if DEBUG:
         pygame.draw.rect(screen, (0, 255, 0), player_rect)
+
+def draw_hearts(screen, health, max_health, heart_image):
+    for i in range(max_health):
+        if i < health:
+            x = 1200 + i * 50  # 50 px gap
+            y = 50
+            screen.blit(heart_image, (x, y))
 
 def movement():
     global frame_index, frame_timer, animation_speed, prev_direction, bg_scroll, player_vel, landed
@@ -140,7 +186,6 @@ def movement():
         player_vel += 0.75
     landed = 0
     frame_timer += 1
-
 
 def death():
     global dead, death_jump, player_vel
@@ -186,10 +231,12 @@ def animations():
     elif prev_direction == 0 and keys[pygame.K_a] and keys[pygame.K_d]:
         screen.blit(player_sprite_right[0],player_rect.topleft)
 
-while True:
+running = True
+while running:
     # Draw all objects
     draw_objects()
-    # Draw map
+    # Draw hearts
+    draw_hearts(screen, player_health, max_health, heart_image)
     # Handle movement
     movement()
     # Handle collisions
@@ -203,11 +250,13 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
+            running = False
     
     if keys[pygame.K_ESCAPE]:
         reset()
+
+    if invincible and pygame.time.get_ticks() - iframe_timer >= IFRAME_DURATION:
+        invincible = False
 
     # Save previous values before moving
     prev_bottom = player_rect.bottom
@@ -220,3 +269,6 @@ while True:
 
     pygame.display.update()
     clock.tick(60)
+
+pygame.quit()
+exit()
