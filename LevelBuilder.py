@@ -11,7 +11,7 @@ BLOCK_TYPES = {
     1: (255, 0, 0),     # Red block (Damage block)
     2: (0, 0, 255),     # Blue block (Water block)
     3: (0, 0, 0),       # Black block (Void block)
-    4: (255, 255, 0),
+    4: (150, 75, 0),    # Brown block
     5: (255, 128, 0),
     6: (128, 0, 255),
     7: (0, 255, 255),
